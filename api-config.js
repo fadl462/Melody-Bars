@@ -1,2 +1,5 @@
-// If deploying the API on a separate Worker hostname, set its full URL here.
-window.MELODY_BARS_CONFIG = { apiUrl: "/api/generate" };
+```javascript
+// Melody Bars API configuration
+window.MELODY_BARS_CONFIG = {
+  apiUrl: "https://melody-bars-music-api.fadlrahmane.workers.dev/api/generate"
+};
