@@ -1,0 +1,7 @@
+name = "melody-bars-music-api"
+main = "worker.js"
+compatibility_date = "2026-10-15"
+
+[vars]
+# Replace with your exact website origin before deployment.
+ALLOWED_ORIGIN = "https://YOUR-MELODY-BARS-DOMAIN.example"

@@ -1,41 +1,27 @@
-# Melody Bars — AI Music Studio Prototype
+# Melody Bars — Connected AI Music Studio
 
-A responsive, premium dark-theme front-end concept for an AI music creation platform.
+## What is implemented
+- Composer now calls `/api/generate` and displays actual audio when the backend is configured.
+- Loading state, errors, audio playback and MP3 download.
+- Prompt includes genre, mood, vocal language, tempo, energy, instruments and avoid instructions.
+- Cloudflare Worker proxy keeps the provider key server-side.
 
-## Included
-- Responsive workspace layout with navigation and creator workspace
-- Song / instrumental / beat-loop mode selection
-- Prompt composer, character counter, prompt suggestions and Surprise Me
-- Genre, mood, language and duration controls
-- Advanced creative direction fields for tempo, energy, instruments and exclusions
-- Prompt guide modal
-- Inspiration cards and session-only demo project list
-- Toast feedback, mobile navigation, keyboard shortcuts and accessibility basics
+## Required before live generation
+This is an integration-ready build, not a deployed service. You must provide an ElevenLabs API key, deploy the Worker and configure the API URL. No secret is included in this ZIP.
 
-## Important: prototype vs. production
-This is a **front-end prototype**. The Create button creates a local demo project entry; it does not generate actual audio. Real generation requires a backend and a licensed music-generation model/API. Do not expose provider API keys in browser JavaScript.
+## Deploy the backend
+1. Install Node.js and npm, then run `npm install -g wrangler`.
+2. Open a terminal in this folder and run `npx wrangler login`.
+3. Edit `wrangler.toml`; set `ALLOWED_ORIGIN` to the exact origin of the live site, without a trailing slash.
+4. Add the provider key securely: `npx wrangler secret put ELEVENLABS_API_KEY`. Never put this key in browser files.
+5. Deploy with `npx wrangler deploy`.
+6. Open `https://YOUR-WORKER.workers.dev/health`; expect `status: ok` and `providerConfigured: true`.
+7. In `api-config.js`, set `apiUrl` to `https://YOUR-WORKER.workers.dev/api/generate`.
+8. Upload the static website to Cloudflare Pages or your host, then test a short instrumental generation.
 
-## Suggested production architecture
-1. Front end: React / Next.js or similar, with this design system adapted into reusable components.
-2. Backend API: authenticated endpoints for generation jobs, project metadata, edits, exports and billing.
-3. Music generation: select a provider that explicitly permits your intended commercial use, or negotiate a model/API licence. Keep the provider behind a server-side adapter so it can be changed without rebuilding the app.
-4. Storage: object storage for audio, stems, cover art and user uploads; relational database for users, projects, rights records and generation history.
-5. Queue: asynchronous job queue for generation, retries, status updates, rate limits and usage accounting.
-6. Identity and billing: secure sign-in, account recovery, plan entitlements, payment integration and abuse controls.
-7. Rights and safety: prompt/input rights confirmation, upload scanning, artist-imitation restrictions where required, reporting/takedown workflow, clear commercial-use terms and generation audit trail.
-8. Release workflow: audio preview, version history, WAV/MP3 export, stems where supported, metadata and distribution-partner integration only after licensing is cleared.
+## Provider implementation
+Uses ElevenLabs Music `POST /v1/music`, model `music_v2_5`, MP3 output, `music_length_ms`, optional instrumental mode and a request for C2PA signing. Duration must be 3 seconds–10 minutes. Review your account entitlements, current provider terms, commercial licence and cost before public launch.
+Official docs: https://elevenlabs.io/docs/api-reference/music/compose and https://developers.cloudflare.com/workers/configuration/secrets/
 
-## Suggested differentiators to build in phases
-- Section regeneration: change a verse, hook or bridge without recreating the whole track.
-- Version compare: A/B audition and restore earlier versions.
-- Lyrics and pronunciation editor with multilingual support (Twi, Ga, Ewe, Hausa, English and Pidgin as target-market priorities; quality must be validated).
-- Voice identity controls only with consent and documented rights.
-- Stem export, MIDI or DAW handoff where model capabilities/licences allow.
-- Transparent rights dashboard per track: plan, creation date, permitted use and restrictions.
-- Collaboration, feedback comments, project folders and release checklist.
-- Creator marketplace only after rights, payouts, moderation and fraud controls are ready.
-
-## Run locally
-Open `index.html` in a modern browser. For best results use a local static server, e.g. `python -m http.server 8000` from this folder.
-
-No build step is required. Google Fonts are loaded remotely; system fallbacks are provided.
+## Current limitations
+Generated tracks stay in browser memory for this session. Persistent accounts/library, database, R2 storage, billing, authentication, per-user rate limits, job queue, section regeneration, stem export, and collaboration are not implemented yet. CORS is not authentication; add user authentication, rate limiting and spending caps before public use. Beat/loop mode prompts for a loop-like result but does not guarantee seamless looping.
